@@ -9,14 +9,14 @@ def find_includes():
 def main():
     path = "."
     
-    # if(len(sys.argv) > 1):
-    #     path = sys.argv[1]
     build_flags = []
     for i in range(1, len(sys.argv)):
         if sys.argv[i] == "--d":
             build_flags.append("-DDEBUG_LOG")
         elif sys.argv[i] == "--p":
             path = sys.argv[i + 1]
+        elif sys.argv[i] == "--t":
+            build_flags.append("-DBENCHMARK")
     topdirs = [f for f in listdir(path) if isdir(join(path, f))]
     includes = []
     source_files = []
