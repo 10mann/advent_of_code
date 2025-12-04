@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <time.h>
 
+#define BENCHMARK 0
+
 typedef void (*solver_function_t)(const char* filename, int part);
 
 solver_function_t solver_functions_2025[] =
@@ -14,6 +16,9 @@ solver_function_t solver_functions_2025[] =
 
 int main(int argc, char *argv[])
 {
+#if BENCHMARK == 1
+    double start = get_time();
+#endif
     const char* filename = "input.txt";
     int year = 0;
     int day = 0;
@@ -47,5 +52,9 @@ int main(int argc, char *argv[])
         }
     }
 
+#if BENCHMARK == 1
+    double end = get_time();
+    printf("Time: %f\n", end - start);
+#endif
     return 0;
 }
