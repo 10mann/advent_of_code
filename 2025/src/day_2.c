@@ -43,9 +43,6 @@ static bool is_valid_id_2(long int id)
         digits++;
     }
 
-#if DEBUG_LOG == 1
-    printf("Digits: %i\n", digits);
-#endif
     for(int i = 0; i < (digits / 2); i++)
     {
         temp = id;
@@ -54,36 +51,23 @@ static bool is_valid_id_2(long int id)
         {
             power *= 10;
         }
+        if(((digits % 2) != 0) && ((i % 2) != 0))
+        {
+            continue;
+        }
         long int pattern = temp % power;
-#if DEBUG_LOG == 1
-        printf("Pattern: %li\n", pattern);
-#endif
         bool match = true;
         while(temp >= power)
         {
             temp /= power;
             int rest = temp % power;
-#if DEBUG_LOG == 1
-            printf("Rest: %i\n", rest);
-#endif
             if(rest != pattern)
             {
-#if DEBUG_LOG == 1
-                printf("No match\n");
-#endif
                 match = false;
                 break;
             }
-#if DEBUG_LOG == 1
-            else
-            {
-                printf("Rest matched\n");
-            }
-#endif
         }
-#if DEBUG_LOG == 1
-        printf("Temp: %li, power: %i\n", temp, power);
-#endif
+
         if(id < power)
         {
             break;
@@ -165,7 +149,6 @@ static void update_state_2(char c, long int* invalid_ids)
         printf("Num1: %li, num2: %li\n", num_1, num_2);
 #endif
         memset(numbers, 0, sizeof(numbers));
-
         for(long int i = num_1; i <= num_2; i++)
         {
             if(!is_valid_id_2(i))
