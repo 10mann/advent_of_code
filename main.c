@@ -4,8 +4,6 @@
 #include <stdio.h>
 #include <time.h>
 
-#define BENCHMARK 0
-
 typedef void (*solver_function_t)(const char* filename, int part);
 
 solver_function_t solver_functions_2025[] =
