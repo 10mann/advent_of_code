@@ -5,73 +5,39 @@
 #include <string.h>
 #include <stdint.h>
 
-static bool is_valid_id_1(long int id)
-{
-    long int temp = id;
-    int digits = 0;
-    int power = 1;
-
-    while(temp > 0)
-    {
-        temp /= 10;
-        digits++;
-    }
-
-    if((digits % 2) != 0)
-    {
-        return true;
-    }
-
-    for(int i = 0; i < digits / 2; i++)
-    {
-        power *= 10;
-    }
-
-    int upper = id / power;
-    int lower = id % power;
-    return upper != lower;
-}
-
-static bool is_valid_id_2(long int id)
+static bool is_valid_id_1(long id)
 {
     bool valid = true;
-    long int temp = id;
-    int digits = 0;
-    while(temp > 0)
-    {
-        temp /= 10;
-        digits++;
-    }
+    char string[64] = {0};
+    size_t length = num_to_string(string, sizeof(string), id);
+    
+    return ((length % 2U) != 0U) || memcmp(string, &string[length / 2U], length / 2U) != 0;
+}
 
-    for(int i = 0; i < (digits / 2); i++)
+static bool is_valid_id_2(long id)
+{
+    bool valid = true;
+    char string[64] = {0};
+    size_t length = num_to_string(string, sizeof(string), id);
+    
+    for(size_t i = 1U; i <= (length / 2); i++)
     {
-        temp = id;
-        int power = 10;
-        for(int j = 0; j < i; j++)
-        {
-            power *= 10;
-        }
-        if(((digits % 2) != 0) && ((i % 2) != 0))
+        if((length % i) != 0)
         {
             continue;
         }
-        long int pattern = temp % power;
+
+        size_t parts = length / i;
         bool match = true;
-        while(temp >= power)
+        for(size_t j = 0; j < (parts - 1U); j++)
         {
-            temp /= power;
-            int rest = temp % power;
-            if(rest != pattern)
+            if(memcmp(&string[j * i], &string[(j + 1U) * i], i) != 0)
             {
                 match = false;
                 break;
             }
         }
 
-        if(id < power)
-        {
-            break;
-        }
         if(match)
         {
             valid = false;
@@ -82,12 +48,12 @@ static bool is_valid_id_2(long int id)
     return valid;
 }
 
-static void update_state_1(char c, long int* invalid_ids)
+static void update_state_1(char c, long* invalid_ids)
 {
     static char numbers[2][256] = {0};
-    static long int num_1 = 0;
-    static long int num_2 = 0;
-    static long int buffer = 0;
+    static long num_1 = 0;
+    static long num_2 = 0;
+    static long buffer = 0;
     static int index = 0;
 
     if(c == '-')
@@ -107,7 +73,7 @@ static void update_state_1(char c, long int* invalid_ids)
 #endif
         memset(numbers, 0, sizeof(numbers));
 
-        for(long int i = num_1; i <= num_2; i++)
+        for(long i = num_1; i <= num_2; i++)
         {
             if(!is_valid_id_1(i))
             {
@@ -125,12 +91,12 @@ static void update_state_1(char c, long int* invalid_ids)
     }
 }
 
-static void update_state_2(char c, long int* invalid_ids)
+static void update_state_2(char c, long* invalid_ids)
 {
     static char numbers[2][256] = {0};
-    static long int num_1 = 0;
-    static long int num_2 = 0;
-    static long int buffer = 0;
+    static long num_1 = 0;
+    static long num_2 = 0;
+    static long buffer = 0;
     static int index = 0;
 
     if(c == '-')
@@ -149,7 +115,7 @@ static void update_state_2(char c, long int* invalid_ids)
         printf("Num1: %li, num2: %li\n", num_1, num_2);
 #endif
         memset(numbers, 0, sizeof(numbers));
-        for(long int i = num_1; i <= num_2; i++)
+        for(long i = num_1; i <= num_2; i++)
         {
             if(!is_valid_id_2(i))
             {
@@ -169,7 +135,7 @@ static void update_state_2(char c, long int* invalid_ids)
 
 static void find_valid_ids_1(const char* filename)
 {
-    long int invalid_ids = 0;
+    long invalid_ids = 0;
     FILE* input_text = fopen(filename, "r");
     while(input_text != NULL)
     {
@@ -201,7 +167,7 @@ static void find_valid_ids_1(const char* filename)
 
 static void find_valid_ids_2(const char* filename)
 {
-    long int invalid_ids = 0;
+    long invalid_ids = 0;
     FILE* input_text = fopen(filename, "r");
     while(input_text != NULL)
     {
