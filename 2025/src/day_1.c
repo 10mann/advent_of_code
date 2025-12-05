@@ -181,4 +181,9 @@ void solve_day_1(const char* filename, int part)
     {
         calculate_password_day_2(filename);
     }
+    else
+    {
+        calculate_password_day_1(filename);
+        calculate_password_day_2(filename);
+    }
 }

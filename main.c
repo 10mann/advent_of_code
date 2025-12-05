@@ -32,14 +32,7 @@ int main(int argc, char *argv[])
         {
             case 2025:
             {
-                if((day <= (sizeof(solver_functions_2025) / sizeof(solver_functions_2025[0]))) && (day > 0))
-                {
-                    solver_functions_2025[day - 1](filename, part);
-                }
-                else
-                {
-                    printf("No solutions for day %i\n", day);
-                }
+                solver_functions_2025[day - 1](filename, part);
                 break;
             }
 

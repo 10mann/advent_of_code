@@ -241,4 +241,9 @@ void solve_day_2(const char* filename, int part)
     {
         find_valid_ids_2(filename);   
     }
+    else
+    {
+        find_valid_ids_1(filename);
+        find_valid_ids_2(filename);
+    }
 }
