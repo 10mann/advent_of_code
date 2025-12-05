@@ -1,6 +1,8 @@
 #include "common.h"
 #include "day_1.h"
 #include "day_2.h"
+#include "day_3.h"
+
 #include <stdio.h>
 #include <time.h>
 
@@ -10,6 +12,7 @@ solver_function_t solver_functions_2025[] =
 {
     solve_day_1,
     solve_day_2,
+    solve_day_3,
 };
 
 int main(int argc, char *argv[])
@@ -32,7 +35,14 @@ int main(int argc, char *argv[])
         {
             case 2025:
             {
-                solver_functions_2025[day - 1](filename, part);
+                if((day > 0) && (day <= (sizeof(solver_functions_2025) / sizeof(solver_functions_2025[0]))))
+                {
+                    solver_functions_2025[day - 1](filename, part);
+                }
+                else
+                {
+                    printf("No solutions for day %i\n", day);
+                }
                 break;
             }
 
