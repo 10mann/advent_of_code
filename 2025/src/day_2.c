@@ -162,6 +162,7 @@ static void find_valid_ids_1(const char* filename)
         printf("Unable to open file %s\n", filename);
     }
 
+    fclose(input_text);
     printf("%li\n", invalid_ids);
 }
 
@@ -194,6 +195,7 @@ static void find_valid_ids_2(const char* filename)
         printf("Unable to open file %s\n", filename);
     }
 
+    fclose(input_text);
     printf("%li\n", invalid_ids);
 }
 

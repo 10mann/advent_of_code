@@ -109,6 +109,7 @@ static void find_joltage_1(const char* filename)
         printf("Unable to open file %s\n", filename);
     }
 
+    fclose(input_text);
     printf("%li\n", joltage);
 }
 
