@@ -268,8 +268,15 @@ static void find_accessible_rolls_1(const char* filename)
         size_t length = fread(buffer, sizeof(buffer[0]), sizeof(buffer), input_text);
         if(length < sizeof(buffer))
         {
-            buffer[length] = '\0';
-            length++;
+            if(buffer[length - 1U] == '\n')
+            {
+                buffer[length - 1U] = '\0';
+            }
+            else
+            {
+                buffer[length] = '\0';
+                length++;
+            }
         }
 
         for(size_t i = 0U; i < length; i++)
@@ -302,8 +309,15 @@ static void find_accessible_rolls_2(const char* filename)
         size_t length = fread(buffer, sizeof(buffer[0]), sizeof(buffer), input_text);
         if(length < sizeof(buffer))
         {
-            buffer[length] = '\0';
-            length++;
+            if(buffer[length - 1U] == '\n')
+            {
+                buffer[length - 1U] = '\0';
+            }
+            else
+            {
+                buffer[length] = '\0';
+                length++;
+            }
         }
 
         for(size_t i = 0U; i < length; i++)

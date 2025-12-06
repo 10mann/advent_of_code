@@ -17,7 +17,7 @@ static void update_state_1(char c, long* joltage)
         int first_num = 0;
         int second_num = 0;
         size_t current_index = 0U;
-        for(size_t i = 0U; i < (index - 1); i++)
+        for(size_t i = 0U; (i < (index - 1)) && (index > 0); i++)
         {
             if(battery[i] > first_num)
             {
@@ -89,8 +89,15 @@ static void find_joltage_1(const char* filename)
         size_t length = fread(buffer, sizeof(buffer[0]), sizeof(buffer), input_text);
         if(length < sizeof(buffer))
         {
-            buffer[length] = '\0';
-            length++;
+            if(buffer[length - 1U] == '\n')
+            {
+                buffer[length - 1U] = '\0';
+            }
+            else
+            {
+                buffer[length] = '\0';
+                length++;
+            }
         }
 
         for(size_t i = 0U; i < length; i++)
@@ -123,8 +130,15 @@ static void find_joltage_2(const char* filename)
         size_t length = fread(buffer, sizeof(buffer[0]), sizeof(buffer), input_text);
         if(length < sizeof(buffer))
         {
-            buffer[length] = '\0';
-            length++;
+            if(buffer[length - 1U] == '\n')
+            {
+                buffer[length - 1U] = '\0';
+            }
+            else
+            {
+                buffer[length] = '\0';
+                length++;
+            }
         }
 
         for(size_t i = 0U; i < length; i++)
