@@ -57,7 +57,7 @@ static void update_state_1(char c, long* fresh_ingredients)
     prev_char = c;
 }
 
-static void update_state_2(char c, long* fresh_ingredients)
+static bool update_state_2(char c, long* fresh_ingredients)
 {
     static char number_buffer[256] = {0};
     static long ranges[2][256] = {0};
@@ -88,21 +88,44 @@ static void update_state_2(char c, long* fresh_ingredients)
             if((ranges[1][range_index] >= ranges[0][i]) && (ranges[1][range_index] <= ranges[1][i]))
             {
                 ranges[1][range_index] = ranges[0][i] - 1U;
+                if(ranges[1][range_index] < ranges[0][range_index])
+                {
+                    ranges[0][range_index] = 1;
+                    ranges[1][range_index] = 0;
+                }
                 break;
+            }
+        }
+
+        for(size_t i = 1U; i <= range_index; i++)
+        {
+            if((ranges[0][range_index - i] >= ranges[0][range_index]) && (ranges[1][range_index - i] <= ranges[1][range_index]))
+            {
+                ranges[0][range_index - i] = 1;
+                ranges[1][range_index - i] = 0;
             }
         }
 
         if((c == '\n') && (prev_char == '\n'))
         {
-            long ingredients = 0;
-            for(size_t i = 0U; i < range_index; i++)
+            for(size_t i = 0U; i <= range_index; i++)
             {
-                printf("[%li - %li]\n", ranges[0][i], ranges[1][i]);
-                ingredients += (ranges[1][i] + 1 - ranges[0][i]);
+                for(size_t j = 0U; j <= range_index; j++)
+                {
+                    if((i != j) && (ranges[0][i] >= ranges[0][j]) && (ranges[1][i] <= ranges[1][j]))
+                    {
+                        ranges[0][i] = 1;
+                        ranges[1][i] = 0;
+                    }
+                }
             }
 
-            printf("Ingredients: %li\n", ingredients);
-            return;
+            for(size_t i = 0U; i < range_index; i++)
+            {
+                (*fresh_ingredients) += (ranges[1][i] + 1 - ranges[0][i]);
+            }
+
+            return true;
         }
         range_index++;
         memset(number_buffer, 0, sizeof(number_buffer));
@@ -114,6 +137,7 @@ static void update_state_2(char c, long* fresh_ingredients)
     }
 
     prev_char = c;
+    return false;
 }
 
 static void find_fresh_ingredients_1(const char* filename)
@@ -180,7 +204,11 @@ static void find_fresh_ingredients_2(const char* filename)
 
         for(size_t i = 0U; i < length; i++)
         {
-            update_state_2(buffer[i], &fresh_ingredients);
+            if(update_state_2(buffer[i], &fresh_ingredients))
+            {
+                length = 0U;
+                break;
+            }
         }
 
         if(length < sizeof(buffer))
@@ -204,13 +232,13 @@ void solve_day_5(const char* filename, int part)
     {
         find_fresh_ingredients_1(filename);
     }
-    // else if(part == 2)
-    // {
-    //     find_fresh_ingredients_2(filename);
-    // }
-    // else
-    // {
-    //     find_fresh_ingredients_1(filename);
-    //     find_fresh_ingredients_2(filename);
-    // }
+    else if(part == 2)
+    {
+        find_fresh_ingredients_2(filename);
+    }
+    else
+    {
+        find_fresh_ingredients_1(filename);
+        find_fresh_ingredients_2(filename);
+    }
 }
