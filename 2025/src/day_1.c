@@ -99,6 +99,7 @@ static void update_state_2(char c, int* dial, int* password)
 #ifdef DEBUG_LOG
         printf("Dial: %i, num: %i, pass: %i\n", *dial, num, *password);
 #endif
+        num = 0;
     }
 }
 
