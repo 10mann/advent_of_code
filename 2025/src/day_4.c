@@ -41,12 +41,11 @@ static long find_accessible_first_or_last_1(const char* row_1, const char* row_2
     return num_accessible;
 }
 
-static long find_accessible_first_or_last_2(const char* row_1, const char* row_2, size_t length, char* replace_row)
+static long find_accessible_first_or_last_2(char* row_1, const char* row_2, size_t length)
 {
     long num_accessible = 0;
     for(size_t i = 0U; i < length; i++)
     {
-        replace_row[i] = row_1[i];
         long count = 0;
         if(row_1[i] == '@')
         {
@@ -73,7 +72,7 @@ static long find_accessible_first_or_last_2(const char* row_1, const char* row_2
             if(count < 4)
             {
                 num_accessible++;
-                replace_row[i] = '.';
+                row_1[i] = '.';
             }
         }
     }
@@ -131,12 +130,11 @@ static long find_accessible_1(const char* row_1, const char* row_2, const char* 
     return num_accessible;
 }
 
-static long find_accessible_2(const char* row_1, const char* row_2, const char* row_3, size_t length, char* replace_row)
+static long find_accessible_2(const char* row_1, char* row_2, const char* row_3, size_t length)
 {
     long num_accessible = 0;
     for(size_t i = 0U; i < length; i++)
     {
-        replace_row[i] = row_2[i];
         long count = 0;
         if(row_2[i] == '@')
         {
@@ -175,7 +173,7 @@ static long find_accessible_2(const char* row_1, const char* row_2, const char* 
             if(count < 4)
             {
                 num_accessible++;
-                replace_row[i] = '.';
+                row_2[i] = '.';
             }
         }
     }
@@ -226,30 +224,27 @@ static void update_state_2(char c, long* accessible_rolls)
     static size_t row = 0U;
     static size_t column = 0U;
     static char grid[256][256] = {0};
-    static char new_grid[256][256] = {0};
 
-    if((c == '\n') || (c == '\0'))
+    if(c == '\n')
     {
-        if(c == '\0')
-        {
-            long accessible = -1;
-            size_t index = 0U;
-            while((accessible != 0))
-            {
-                accessible = find_accessible_first_or_last_2(grid[0], grid[1], column, new_grid[0]);
-                for(size_t i = 1U; i < row; i++)
-                {
-                    accessible += find_accessible_2(grid[i - 1U], grid[i], grid[i + 1U], column, new_grid[i]);
-                }
-                accessible += find_accessible_first_or_last_2(grid[row], grid[row - 1], column, new_grid[row]);
-                (*accessible_rolls) += accessible;
-                memcpy(grid, new_grid, sizeof(grid));
-                index++;
-            }
-        }
-
         row++;
         column = 0U;
+    }
+    else if(c == '\0')
+    {
+        long accessible = -1;
+        size_t index = 0U;
+        while((accessible != 0))
+        {
+            accessible = find_accessible_first_or_last_2(grid[0], grid[1], column);
+            for(size_t i = 1U; i < row; i++)
+            {
+                accessible += find_accessible_2(grid[i - 1U], grid[i], grid[i + 1U], column);
+            }
+            accessible += find_accessible_first_or_last_2(grid[row], grid[row - 1], column);
+            (*accessible_rolls) += accessible;
+            index++;
+        }
     }
     else
     {
