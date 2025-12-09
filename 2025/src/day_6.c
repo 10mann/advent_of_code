@@ -38,11 +38,14 @@ static void update_state_1(char c, long* sum)
         operators[operator_index] = c;
         operator_index++;
     }
-    else if((c == '\n') && (prev_char != ' '))
+    else if(c == '\n')
     {
-        numbers[line_index][number_index] = string_to_num(buffer);
-        memset(buffer, 0, sizeof(buffer));
-        buffer_index = 0U;
+        if(prev_char != ' ')
+        {
+            numbers[line_index][number_index] = string_to_num(buffer);
+            memset(buffer, 0, sizeof(buffer));
+            buffer_index = 0U;
+        }
 
         line_index++;
         number_index = 0U;
