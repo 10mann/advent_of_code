@@ -6,6 +6,7 @@
 #include "day_5.h"
 #include "day_6.h"
 #include "day_7.h"
+#include "day_8.h"
 
 #include <stdio.h>
 #include <time.h>
@@ -21,6 +22,7 @@ solver_function_t solver_functions_2025[] =
     solve_day_5,
     solve_day_6,
     solve_day_7,
+    solve_day_8,
 };
 
 int main(int argc, char *argv[])
