@@ -44,7 +44,7 @@ static void update_state_1(char c, long* circuits)
             long curr_group_2 = -1;
             for(size_t i = 0U; i < line_index; i++)
             {
-                for(size_t j = 0U; j < line_index; j++)
+                for(size_t j = i + 1U; j < line_index; j++)
                 {
                     bool indexes_equal = ((prev_first_index == i) && (prev_second_index == j)) || ((prev_first_index == j) && (prev_second_index == i));
                     if((i != j) && !indexes_equal)
@@ -56,7 +56,7 @@ static void update_state_1(char c, long* circuits)
                         long z = grid[i][2] - grid[j][2];
                         long dist = (x * x) + (y * y) + (z * z);
                         bool indexes_equal = ((prev_first_index == i) && (prev_second_index == j)) || ((prev_first_index == j) && (prev_second_index == i));
-                        // && ((curr_group_1 == -1) || (curr_group_1 != curr_group_2)))
+                        
                         if((dist < closes_dist) && (dist >= prev_dist) && (!indexes_equal))
                         {
                             group_1 = curr_group_1;
@@ -201,7 +201,7 @@ static void update_state_2(char c, long* circuits)
             long curr_group_2 = -1;
             for(size_t i = 0U; i < line_index; i++)
             {
-                for(size_t j = 0U; j < line_index; j++)
+                for(size_t j = i + 1U; j < line_index; j++)
                 {
                     bool indexes_equal = ((prev_first_index == i) && (prev_second_index == j)) || ((prev_first_index == j) && (prev_second_index == i));
                     if((i != j) && !indexes_equal)
@@ -213,7 +213,6 @@ static void update_state_2(char c, long* circuits)
                         long z = grid[i][2] - grid[j][2];
                         long dist = (x * x) + (y * y) + (z * z);
                         bool indexes_equal = ((prev_first_index == i) && (prev_second_index == j)) || ((prev_first_index == j) && (prev_second_index == i));
-                        // && ((curr_group_1 == -1) || (curr_group_1 != curr_group_2)))
                         if((dist < closes_dist) && (dist >= prev_dist) && (!indexes_equal)&& ((curr_group_1 == -1) || (curr_group_1 != curr_group_2)))
                         {
                             group_1 = curr_group_1;
