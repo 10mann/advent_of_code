@@ -194,7 +194,7 @@ static void update_state_2(char c, long* invalid_ids)
         {
             if(!is_valid_id_2_v2(i))
             {
-                printf("invalid: %li\n", i);
+                // printf("invalid: %li\n", i);
                 (*invalid_ids) += i;
             }
         }
@@ -302,30 +302,49 @@ static void update_state_2_v2(char c, long* invalid_ids)
 
             if(valid)
             {
-                size_t half_length = length / 2U;
-                for(size_t index = 1U; valid && (index <= half_length); index++)
-                {
-                    if((length % index) != 0U)
+                // if(odd)
+                // {
+
+                    size_t half_length = length / 2U;
+                    for(size_t index = 1U; valid && (index <= half_length); index++)
                     {
-                        continue;
-                    }
-                    size_t parts = length / index;
-                    bool match = true;
-                    for(size_t j = 0; j < (parts - 1U); j++)
-                    {
-                        if(memcmp(&string[j * index], &string[(j + 1U) * index], index) != 0)
+                        if((length % index) != 0U)
                         {
-                            match = false;
+                            continue;
+                        }
+                        size_t parts = length / index;
+                        bool match = true;
+                        for(size_t j = 0; j < (parts - 1U); j++)
+                        {
+                            if(memcmp(&string[j * index], &string[(j + 1U) * index], index) != 0)
+                            {
+                                match = false;
+                                break;
+                            }
+                        }
+                        
+                        if(match)
+                        {
+                            valid = false;
                             break;
                         }
                     }
-                    
-                    if(match)
-                    {
-                        valid = false;
-                        break;
-                    }
-                }
+                // }
+                // else
+                // {
+                //     size_t xor = 0U;
+                //     size_t half_length = length / 2U;
+                //     for(size_t index = 0U; index < half_length; index++)
+                //     {
+                //         xor ^= (string[index] << (index + 2));
+                //     }
+                //     for(size_t index = 0U; index < half_length; index++)
+                //     {
+                //         xor ^= (string[index + half_length] << (index + 2));
+                //     }
+
+                //     valid = xor;
+                // }
             }
 
             if(!valid)
@@ -541,85 +560,50 @@ static void update_state_2_v3(char c, long* invalid_ids)
     }
 }
 
-static void find_valid_ids_1(const char* filename)
+static void find_valid_ids_1(const char* buffer, size_t length)
 {
     long invalid_ids = 0;
-    FILE* input_text = fopen(filename, "r");
-    while(input_text != NULL)
-    {
-        char buffer[8 * 1024] = {0};
-        size_t length = fread(buffer, sizeof(buffer[0]), sizeof(buffer), input_text);
-        if(length < sizeof(buffer))
-        {
-            buffer[length] = '\0';
-            length++;
-        }
-        for(size_t i = 0U; i < length; i++)
-        {
-            update_state_1(buffer[i], &invalid_ids);
-        }
 
-        if(length < sizeof(buffer))
-        {
-            break;
-        }
+    for(size_t i = 0U; i < length; i++)
+    {
+        update_state_1(buffer[i], &invalid_ids);
     }
 
-    if(input_text == NULL)
-    {
-        printf("Unable to open file %s\n", filename);
-    }
-
-    fclose(input_text);
     printf("%li\n", invalid_ids);
 }
 
-static void find_valid_ids_2(const char* filename)
+static void find_valid_ids_2(const char* buffer, size_t length)
 {
     long invalid_ids = 0;
-    FILE* input_text = fopen(filename, "r");
-    while(input_text != NULL)
-    {
-        char buffer[8 * 1024] = {0};
-        size_t length = fread(buffer, sizeof(buffer[0]), sizeof(buffer), input_text);
-        if(length < sizeof(buffer))
-        {
-            buffer[length] = '\0';
-            length++;
-        }
-        for(size_t i = 0U; i < length; i++)
-        {
-            update_state_2_v2(buffer[i], &invalid_ids);
-        }
 
-        if(length < sizeof(buffer))
-        {
-            break;
-        }
+    for(size_t i = 0U; i < length; i++)
+    {
+        update_state_2_v2(buffer[i], &invalid_ids);
     }
 
-    if(input_text == NULL)
-    {
-        printf("Unable to open file %s\n", filename);
-    }
-
-    fclose(input_text);
     printf("%li\n", invalid_ids);
 }
 
-void solve_day_2(const char* filename, int part)
+void solve_day_2(const char* filename, int part, bool dryrun)
 {
-    if(part == 1)
+    char buffer[32 * 1024] = {0};
+    size_t buffer_length = read_file(filename, buffer, sizeof(buffer));
+
+    if(dryrun)
     {
-        find_valid_ids_1(filename);
+
+    }
+    else if(part == 1)
+    {
+        find_valid_ids_1(buffer, buffer_length);
     }
     else if(part == 2)
     {
-        find_valid_ids_2(filename);   
+        find_valid_ids_2(buffer, buffer_length);
     }
     else
     {
-        find_valid_ids_1(filename);
-        find_valid_ids_2(filename);
+        find_valid_ids_1(buffer, buffer_length);
+        find_valid_ids_2(buffer, buffer_length);
     }
 }

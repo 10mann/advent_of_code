@@ -1,4 +1,6 @@
 #include "day_3.h"
+#include "common.h"
+
 #include <stdio.h>
 #include <string.h>
 
@@ -79,100 +81,50 @@ static void update_state_2(char c, long* joltage)
     }
 }
 
-static void find_joltage_1(const char* filename)
+static void find_joltage_1(const char* buffer, size_t length)
 {
     long joltage = 0;
-    FILE* input_text = fopen(filename, "r");
-    while(input_text != NULL)
+
+    for(size_t i = 0U; i < length; i++)
     {
-        char buffer[8 * 1024] = {0};
-        size_t length = fread(buffer, sizeof(buffer[0]), sizeof(buffer), input_text);
-        if(length < sizeof(buffer))
-        {
-            if(buffer[length - 1U] == '\n')
-            {
-                buffer[length - 1U] = '\0';
-            }
-            else
-            {
-                buffer[length] = '\0';
-                length++;
-            }
-        }
-
-        for(size_t i = 0U; i < length; i++)
-        {
-            update_state_1(buffer[i], &joltage);
-        }
-
-        if(length < sizeof(buffer))
-        {
-            break;
-        }
-    }
-
-    if(input_text == NULL)
-    {
-        printf("Unable to open file %s\n", filename);
-    }
-
-    fclose(input_text);
-    printf("%li\n", joltage);
-}
-
-static void find_joltage_2(const char* filename)
-{
-    long joltage = 0;
-    FILE* input_text = fopen(filename, "r");
-    while(input_text != NULL)
-    {
-        char buffer[8 * 1024] = {0};
-        size_t length = fread(buffer, sizeof(buffer[0]), sizeof(buffer), input_text);
-        if(length < sizeof(buffer))
-        {
-            if(buffer[length - 1U] == '\n')
-            {
-                buffer[length - 1U] = '\0';
-            }
-            else
-            {
-                buffer[length] = '\0';
-                length++;
-            }
-        }
-
-        for(size_t i = 0U; i < length; i++)
-        {
-            update_state_2(buffer[i], &joltage);
-        }
-
-        if(length < sizeof(buffer))
-        {
-            break;
-        }
-    }
-
-    if(input_text == NULL)
-    {
-        printf("Unable to open file %s\n", filename);
+        update_state_1(buffer[i], &joltage);
     }
 
     printf("%li\n", joltage);
 }
 
-void solve_day_3(const char* filename, int part)
+static void find_joltage_2(const char* buffer, size_t length)
 {
-    if(part == 1)
+    long joltage = 0;
+
+    for(size_t i = 0U; i < length; i++)
     {
-        find_joltage_1(filename);
+        update_state_2(buffer[i], &joltage);
+    }
+
+    printf("%li\n", joltage);
+}
+
+void solve_day_3(const char* filename, int part, bool dryrun)
+{
+    char buffer[32 * 1024] = {0};
+    size_t buffer_length = read_file(filename, buffer, sizeof(buffer));
+
+    if(dryrun)
+    {
+
+    }
+    else if(part == 1)
+    {
+        find_joltage_1(buffer, buffer_length);
     }
     else if(part == 2)
     {
-        find_joltage_2(filename);
+        find_joltage_2(buffer, buffer_length);
     }
     else
     {
-        find_joltage_1(filename);
-        find_joltage_2(filename);
+        find_joltage_1(buffer, buffer_length);
+        find_joltage_2(buffer, buffer_length);
     }
 }

@@ -257,101 +257,50 @@ static void update_state_2(char c, long* biggest_area)
     }
 }
 
-static void find_biggest_area_1(const char* filename)
+static void find_biggest_area_1(const char* buffer, size_t length)
 {
     long biggest_area = 0;
-    FILE* input_text = fopen(filename, "r");
-    while(input_text != NULL)
+
+    for(size_t i = 0U; i < length; i++)
     {
-        char buffer[8 * 1024] = {0};
-        size_t length = fread(buffer, sizeof(buffer[0]), sizeof(buffer), input_text);
-        if(length < sizeof(buffer))
-        {
-            if(buffer[length - 1U] == '\n')
-            {
-                buffer[length - 1U] = '\0';
-            }
-            else
-            {
-                buffer[length] = '\0';
-                length++;
-            }
-        }
-
-        for(size_t i = 0U; i < length; i++)
-        {
-            update_state_1(buffer[i], &biggest_area);
-        }
-
-        if(length < sizeof(buffer))
-        {
-            break;
-        }
+        update_state_1(buffer[i], &biggest_area);
     }
 
-    if(input_text == NULL)
-    {
-        printf("Unable to open file %s\n", filename);
-    }
-
-    fclose(input_text);
     printf("%li\n", biggest_area);
 }
 
-static void find_biggest_area_2(const char* filename)
+static void find_biggest_area_2(const char* buffer, size_t length)
 {
     long biggest_area = 0;
-    FILE* input_text = fopen(filename, "r");
-    while(input_text != NULL)
+
+    for(size_t i = 0U; i < length; i++)
     {
-        char buffer[8 * 1024] = {0};
-        size_t length = fread(buffer, sizeof(buffer[0]), sizeof(buffer), input_text);
-        if(length < sizeof(buffer))
-        {
-            if(buffer[length - 1U] == '\n')
-            {
-                buffer[length - 1U] = '\0';
-            }
-            else
-            {
-                buffer[length] = '\0';
-                length++;
-            }
-        }
-
-        for(size_t i = 0U; i < length; i++)
-        {
-            update_state_2(buffer[i], &biggest_area);
-        }
-
-        if(length < sizeof(buffer))
-        {
-            break;
-        }
+        update_state_2(buffer[i], &biggest_area);
     }
 
-    if(input_text == NULL)
-    {
-        printf("Unable to open file %s\n", filename);
-    }
-
-    fclose(input_text);
     printf("%li\n", biggest_area);
 }
 
-void solve_day_9(const char* filename, int part)
+void solve_day_9(const char* filename, int part, bool dryrun)
 {
+    char buffer[32 * 1024] = {0};
+    size_t buffer_length = read_file(filename, buffer, sizeof(buffer));
+
+    if(dryrun)
+    {
+
+    }
     if(part == 1)
     {
-        find_biggest_area_1(filename);
+        find_biggest_area_1(buffer, buffer_length);
     }
     else if(part == 2)
     {
-        find_biggest_area_2(filename);
+        find_biggest_area_2(buffer, buffer_length);
     }
     else
     {
-        find_biggest_area_1(filename);
-        find_biggest_area_2(filename);
+        find_biggest_area_1(buffer, buffer_length);
+        find_biggest_area_2(buffer, buffer_length);
     }
 }

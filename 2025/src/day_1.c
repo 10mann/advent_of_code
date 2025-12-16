@@ -1,4 +1,7 @@
 #include "day_1.h"
+#include "common.h"
+
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 
@@ -42,9 +45,6 @@ static void update_state_1(char c, int* dial, int* password)
         {
             (*password)++;
         }
-#ifdef DEBUG_LOG
-        printf("Dial: %i, num: %i, pass: %i\n", *dial, num, *password);
-#endif
     }
 }
 
@@ -96,95 +96,55 @@ static void update_state_2(char c, int* dial, int* password)
         }
 
         *dial %= 100;
-#ifdef DEBUG_LOG
-        printf("Dial: %i, num: %i, pass: %i\n", *dial, num, *password);
-#endif
         num = 0;
     }
 }
 
-static void calculate_password_day_1(const char* filename)
+static void calculate_password_day_1(const char* buffer, size_t length)
 {
     int password = 0;
     int dial = 50;
-    FILE* input_text = fopen(filename, "r");
-    
-    char input[8 * 1024] = {0};
-    size_t tot_read = 0U;
-    while(input_text != NULL)
+
+    for(size_t i = 0U; i < length; i++)
     {
-        size_t length = fread(input, sizeof(input[0]), sizeof(input), input_text);
-        tot_read += length;
-        if(length < sizeof(input))
-        {
-            input[length] = '\n';
-            length++;
-        }
-
-        for(size_t i = 0U; i < length; i++)
-        {
-            update_state_1(input[i], &dial, &password);
-        }
-
-        if(length < sizeof(input))
-        {
-            break;
-        }
+        update_state_1(buffer[i], &dial, &password);
     }
-#ifdef DEBUG_LOG
-    printf("Tot read: %lu\n", tot_read);
-#endif
-    fclose(input_text);
+
     printf("%i\n", password);
 }
 
-static void calculate_password_day_2(const char* filename)
+static void calculate_password_day_2(const char* buffer, size_t length)
 {
     int password = 0;
     int dial = 50;
-    FILE* input_text = fopen(filename, "r");
-    char input[8 * 1024] = {0};
-    size_t tot_read = 0U;
-    while(input_text != NULL)
+
+    for(size_t i = 0U; i < length; i++)
     {
-        size_t length = fread(input, sizeof(input[0]), sizeof(input), input_text);
-        tot_read += length;
-        if(length < sizeof(input))
-        {
-            input[length] = '\n';
-            length++;
-        }
-
-        for(size_t i = 0U; i < length; i++)
-        {
-            update_state_2(input[i], &dial, &password);
-        }
-
-        if(length < sizeof(input))
-        {
-            break;
-        }
+        update_state_2(buffer[i], &dial, &password);
     }
-#ifdef DEBUG_LOG
-    printf("Tot read: %lu\n", tot_read);
-#endif
-    fclose(input_text);
+
     printf("%i\n", password);
 }
 
-void solve_day_1(const char* filename, int part)
+void solve_day_1(const char* filename, int part, bool dryrun)
 {
-    if(part == 1)
+    char buffer[32 * 1024] = {0};
+    size_t buffer_length = read_file(filename, buffer, sizeof(buffer));
+    if(dryrun)
     {
-        calculate_password_day_1(filename);
+        
+    }
+    else if(part == 1)
+    {
+        calculate_password_day_1(buffer, buffer_length);
     }
     else if(part == 2)
     {
-        calculate_password_day_2(filename);
+        calculate_password_day_2(buffer, buffer_length);
     }
     else
     {
-        calculate_password_day_1(filename);
-        calculate_password_day_2(filename);
+        calculate_password_day_1(buffer, buffer_length);
+        calculate_password_day_2(buffer, buffer_length);
     }
 }

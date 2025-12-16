@@ -140,105 +140,54 @@ static bool update_state_2(char c, long* fresh_ingredients)
     return false;
 }
 
-static void find_fresh_ingredients_1(const char* filename)
+static void find_fresh_ingredients_1(const char* buffer, size_t length)
 {
     long fresh_ingredients = 0;
-    FILE* input_text = fopen(filename, "r");
-    while(input_text != NULL)
+
+    for(size_t i = 0U; i < length; i++)
     {
-        char buffer[8 * 1024] = {0};
-        size_t length = fread(buffer, sizeof(buffer[0]), sizeof(buffer), input_text);
-        if(length < sizeof(buffer))
-        {
-            if(buffer[length - 1U] == '\n')
-            {
-                buffer[length - 1U] = '\0';
-            }
-            else
-            {
-                buffer[length] = '\0';
-                length++;
-            }
-        }
+        update_state_1(buffer[i], &fresh_ingredients);
+    }
 
-        for(size_t i = 0U; i < length; i++)
-        {
-            update_state_1(buffer[i], &fresh_ingredients);
-        }
+    printf("%li\n", fresh_ingredients);
+}
 
-        if(length < sizeof(buffer))
+static void find_fresh_ingredients_2(const char* buffer, size_t length)
+{
+    long fresh_ingredients = 0;
+
+    for(size_t i = 0U; i < length; i++)
+    {
+        if(update_state_2(buffer[i], &fresh_ingredients))
         {
+            length = 0U;
             break;
         }
     }
 
-    if(input_text == NULL)
-    {
-        printf("Unable to open file %s\n", filename);
-    }
-
-    fclose(input_text);
     printf("%li\n", fresh_ingredients);
 }
 
-static void find_fresh_ingredients_2(const char* filename)
+void solve_day_5(const char* filename, int part, bool dryrun)
 {
-    long fresh_ingredients = 0;
-    FILE* input_text = fopen(filename, "r");
-    while(input_text != NULL)
+    char buffer[32 * 1024] = {0};
+    size_t buffer_length = read_file(filename, buffer, sizeof(buffer));
+
+    if(dryrun)
     {
-        char buffer[8 * 1024] = {0};
-        size_t length = fread(buffer, sizeof(buffer[0]), sizeof(buffer), input_text);
-        if(length < sizeof(buffer))
-        {
-            if(buffer[length - 1U] == '\n')
-            {
-                buffer[length - 1U] = '\0';
-            }
-            else
-            {
-                buffer[length] = '\0';
-                length++;
-            }
-        }
 
-        for(size_t i = 0U; i < length; i++)
-        {
-            if(update_state_2(buffer[i], &fresh_ingredients))
-            {
-                length = 0U;
-                break;
-            }
-        }
-
-        if(length < sizeof(buffer))
-        {
-            break;
-        }
     }
-
-    if(input_text == NULL)
+    else if(part == 1)
     {
-        printf("Unable to open file %s\n", filename);
-    }
-
-    fclose(input_text);
-    printf("%li\n", fresh_ingredients);
-}
-
-void solve_day_5(const char* filename, int part)
-{
-    if(part == 1)
-    {
-        find_fresh_ingredients_1(filename);
+        find_fresh_ingredients_1(buffer, buffer_length);
     }
     else if(part == 2)
     {
-        find_fresh_ingredients_2(filename);
+        find_fresh_ingredients_2(buffer, buffer_length);
     }
     else
     {
-        find_fresh_ingredients_1(filename);
-        find_fresh_ingredients_2(filename);
+        find_fresh_ingredients_1(buffer, buffer_length);
+        find_fresh_ingredients_2(buffer, buffer_length);
     }
 }

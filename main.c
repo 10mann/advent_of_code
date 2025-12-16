@@ -11,10 +11,11 @@
 #include "day_10.h"
 #include "day_11.h"
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <time.h>
 
-typedef void (*solver_function_t)(const char* filename, int part);
+typedef void (*solver_function_t)(const char* filename, int part, bool dryrun);
 
 solver_function_t solver_functions_2025[] =
 {
@@ -53,7 +54,7 @@ int main(int argc, char *argv[])
             {
                 if((day > 0) && (day <= (sizeof(solver_functions_2025) / sizeof(solver_functions_2025[0]))))
                 {
-                    solver_functions_2025[day - 1](filename, part);
+                    solver_functions_2025[day - 1](filename, part, argc > 5);
                 }
                 else
                 {
