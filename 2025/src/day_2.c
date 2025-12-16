@@ -170,6 +170,150 @@ static void update_state_1(char c, long* invalid_ids)
     }
 }
 
+static void update_state_1_v2(char c, long* invalid_ids)
+{
+    static char numbers[2][256] = {0};
+    static long num_1 = 0;
+    static long num_2 = 0;
+    static long buffer = 0;
+    static int index = 0;
+
+    if(c == '-')
+    {
+        num_1 = string_to_num(numbers[0]);
+        buffer = 1;
+        index = 0;
+    }
+    else if((c == ',') || (c == '\0') || (c == '\n'))
+    {
+        num_2 = string_to_num(numbers[1]);
+        buffer = 0;
+        index = 0;
+
+        size_t num_1_length = 0U;
+        for(num_1_length = 0U; numbers[0][num_1_length] != '\0'; num_1_length++){}
+        size_t num_2_length = 0U;
+        for(num_2_length = 0U; numbers[1][num_2_length] != '\0'; num_2_length++){}
+
+        bool length_1_odd = ((num_1_length & 1));
+        bool skip = ((num_1_length == num_2_length) && length_1_odd);
+        size_t next_power = 1U;
+        if((num_2_length > num_1_length) && length_1_odd)
+        {
+            for(size_t i = 0U; i < num_1_length; i++)
+            {
+                next_power *= 10U;
+            }
+            num_1 = next_power;
+            num_1_length++;
+            num_to_string(numbers[0], sizeof(numbers[0]), num_1);
+            length_1_odd = false;
+        }
+
+        if(((num_2_length - num_1_length) < 2U) && !length_1_odd)
+        {
+            size_t half_length = num_1_length / 2U;
+            for(size_t i = 0U; i < half_length; i++)
+            {
+                numbers[0][half_length + i] = numbers[0][i];
+            }
+            char str_max_index[12] = {0};
+            char str_factor[12] = {0};
+            str_factor[0] = '1';
+            for(size_t i = 1U; i < half_length; i++)
+            {
+                str_factor[i] = '0';
+            }
+            for(size_t i = 0U; i < (num_2_length / 2U); i++)
+            {
+                str_max_index[i] = '9';
+            }
+            str_factor[half_length] = '1';
+            long num = string_to_num(str_factor);
+            long max_index = string_to_num(str_max_index);
+            long start_num = string_to_num(numbers[0]);
+            if(start_num < num_1)
+            {
+                start_num += num;   
+            }
+            num_1 = start_num;
+            long start = num_1 / num;
+            long end = num_2 / num;
+            if(end > max_index)
+            {
+                end = max_index;
+            }
+
+            long indexes = 0;
+            for(long i = start; i <= end; i++)
+            {
+                indexes += i;
+            }
+            (*invalid_ids) += (num * (indexes));
+            num_1 = num_2 + 1;
+        }
+
+        memset(numbers, 0, sizeof(numbers));
+        for(long i = num_1; (i <= num_2) && !skip; i++)
+        {
+            char string[64] = {0};
+            size_t length = num_to_string(string, sizeof(string), i);
+            size_t half_index = length / 2U;
+            if(length & 1)
+            {
+                continue;
+            }
+
+            bool invalid = true;
+            for(size_t j = 0U; j < half_index; j++)
+            {
+                if(string[j] != string[half_index + j])
+                {
+                    invalid = false;
+                    break;
+                }
+            }
+
+            size_t power = 1;
+            for(size_t j = 0U; j < (half_index); j++)
+            {
+                power *= 10U;
+            }
+
+            if(invalid)
+            {
+                printf("Invalid: %li\n", i);
+                (*invalid_ids) += i;
+                i += power;
+            }
+            else
+            {
+                long upper = i / power;
+                long lower = i % power;
+                if(lower > upper)
+                {
+                    next_power = 1U;
+                    for(size_t i = 0U; i < (half_index); i++)
+                    {
+                        next_power *= 10U;
+                    }
+                    i += next_power - 1U - (lower - upper);
+                    continue;
+                }
+                else
+                {
+                    i += (upper - lower) - 1U;
+                }
+            }
+        }
+    }
+    else if((c >= '0') && (0 <= '9'))
+    {
+        numbers[buffer][index] = c;
+        index++;
+    }
+}
+
 static void update_state_2(char c, long* invalid_ids)
 {
     static char numbers[2][256] = {0};
@@ -566,7 +710,7 @@ static void find_valid_ids_1(const char* buffer, size_t length)
 
     for(size_t i = 0U; i < length; i++)
     {
-        update_state_1(buffer[i], &invalid_ids);
+        update_state_1_v2(buffer[i], &invalid_ids);
     }
 
     printf("%li\n", invalid_ids);
