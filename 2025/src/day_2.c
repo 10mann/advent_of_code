@@ -282,7 +282,7 @@ static void update_state_1_v2(char c, long* invalid_ids)
 
             if(invalid)
             {
-                printf("Invalid: %li\n", i);
+                // printf("Invalid: %li\n", i);
                 (*invalid_ids) += i;
                 i += power;
             }
