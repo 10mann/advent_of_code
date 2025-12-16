@@ -177,26 +177,23 @@ static void update_state_1_v2(char c, long* invalid_ids)
     static long num_2 = 0;
     static long buffer = 0;
     static int index = 0;
+    static size_t num_1_length = 0U;
+    static size_t num_2_length = 0U;
 
     if(c == '-')
     {
         num_1 = string_to_num(numbers[0]);
         buffer = 1;
+        num_1_length = index;
         index = 0;
     }
     else if((c == ',') || (c == '\0') || (c == '\n'))
     {
-        num_2 = string_to_num(numbers[1]);
         buffer = 0;
+        num_2_length = index;
         index = 0;
 
-        size_t num_1_length = 0U;
-        for(num_1_length = 0U; numbers[0][num_1_length] != '\0'; num_1_length++){}
-        size_t num_2_length = 0U;
-        for(num_2_length = 0U; numbers[1][num_2_length] != '\0'; num_2_length++){}
-
         bool length_1_odd = ((num_1_length & 1));
-        bool skip = ((num_1_length == num_2_length) && length_1_odd);
         size_t next_power = 1U;
         if((num_2_length > num_1_length) && length_1_odd)
         {
@@ -212,6 +209,7 @@ static void update_state_1_v2(char c, long* invalid_ids)
 
         if(((num_2_length - num_1_length) < 2U) && !length_1_odd)
         {
+            num_2 = string_to_num(numbers[1]);
             size_t half_length = num_1_length / 2U;
             for(size_t i = 0U; i < half_length; i++)
             {
@@ -254,58 +252,6 @@ static void update_state_1_v2(char c, long* invalid_ids)
         }
 
         memset(numbers, 0, sizeof(numbers));
-        for(long i = num_1; (i <= num_2) && !skip; i++)
-        {
-            char string[64] = {0};
-            size_t length = num_to_string(string, sizeof(string), i);
-            size_t half_index = length / 2U;
-            if(length & 1)
-            {
-                continue;
-            }
-
-            bool invalid = true;
-            for(size_t j = 0U; j < half_index; j++)
-            {
-                if(string[j] != string[half_index + j])
-                {
-                    invalid = false;
-                    break;
-                }
-            }
-
-            size_t power = 1;
-            for(size_t j = 0U; j < (half_index); j++)
-            {
-                power *= 10U;
-            }
-
-            if(invalid)
-            {
-                // printf("Invalid: %li\n", i);
-                (*invalid_ids) += i;
-                i += power;
-            }
-            else
-            {
-                long upper = i / power;
-                long lower = i % power;
-                if(lower > upper)
-                {
-                    next_power = 1U;
-                    for(size_t i = 0U; i < (half_index); i++)
-                    {
-                        next_power *= 10U;
-                    }
-                    i += next_power - 1U - (lower - upper);
-                    continue;
-                }
-                else
-                {
-                    i += (upper - lower) - 1U;
-                }
-            }
-        }
     }
     else if((c >= '0') && (0 <= '9'))
     {
