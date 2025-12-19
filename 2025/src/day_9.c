@@ -296,11 +296,11 @@ void solve_day_9(const char* filename, int part, bool dryrun)
     }
     else if(part == 2)
     {
-        find_biggest_area_2(buffer, buffer_length);
+        // find_biggest_area_2(buffer, buffer_length);
     }
     else
     {
         find_biggest_area_1(buffer, buffer_length);
-        find_biggest_area_2(buffer, buffer_length);
+        // find_biggest_area_2(buffer, buffer_length);
     }
 }
