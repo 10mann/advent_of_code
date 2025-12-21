@@ -5,7 +5,7 @@
 #include <stdbool.h>
 
 #define GROUP_SIZE 1000
-#define GROUP_SIZE_V2 7200
+#define GROUP_SIZE_V2 6400
 
 static void shuffle_array(long* arr, size_t length)
 {
@@ -13,6 +13,42 @@ static void shuffle_array(long* arr, size_t length)
     {
         arr[length - i] = arr[length - i - 1];
     }
+}
+
+static size_t get_prev_index(const long* arr, size_t length, long num)
+{
+    size_t start = 0U;
+    size_t end = length;
+    size_t mid = (end - start) / 2U;
+
+    if(num > arr[length - 1U])
+    {
+        return length - 1U;
+    }
+    if(num < arr[0U])
+    {
+        return 0U;
+    }
+
+    while(mid > 0U)
+    {
+        if((arr[mid] >= num) && (arr[mid - 1U] < num))
+        {
+            return mid;
+        }
+        else if(arr[mid] < num)
+        {
+            start = mid;
+            mid = (end + start) / 2U;
+        }
+        else 
+        {
+            end = mid;
+            mid = (end + start) / 2U;
+        }
+    }
+
+    return 0U;
 }
 
 static void update_state_1(char c, long* circuits)
@@ -213,23 +249,17 @@ static void update_state_1_v2(char c, long* circuits)
                 long dist = (x * x) + (y * y) + (z * z);
                 if(dist < closest_dists[closest_dists_index - 1U])
                 {
-                    for(size_t index = 0U; index < closest_dists_index; index++)
+                    size_t index = get_prev_index(closest_dists, closest_dists_index, dist);
+                    if(closest_dists_index < GROUP_SIZE)
                     {
-                        if(dist < closest_dists[index])
-                        {
-                            if(closest_dists_index < GROUP_SIZE)
-                            {
-                                closest_dists_index++;
-                            }
-                            shuffle_array(&closest_dists[index], closest_dists_index - index);
-                            shuffle_array(&closest_first_indexes[index], closest_dists_index - index);
-                            shuffle_array(&closest_second_indexes[index], closest_dists_index - index);
-                            closest_dists[index] = dist;
-                            closest_first_indexes[index] = i;
-                            closest_second_indexes[index] = j;
-                            break;
-                        }
+                        closest_dists_index++;
                     }
+                    shuffle_array(&closest_dists[index], closest_dists_index - index);
+                    shuffle_array(&closest_first_indexes[index], closest_dists_index - index);
+                    shuffle_array(&closest_second_indexes[index], closest_dists_index - index);
+                    closest_dists[index] = dist;
+                    closest_first_indexes[index] = i;
+                    closest_second_indexes[index] = j;
                 }
             }
         }
@@ -533,23 +563,41 @@ static void update_state_2_v2(char c, long* circuits)
                 long dist = (x * x) + (y * y) + (z * z);
                 if(dist < closest_dists[closest_dists_index - 1U])
                 {
-                    for(size_t index = 0U; index < closest_dists_index; index++)
+                    // bool first_found = false;
+                    // bool second_found = false;
+                    // for(size_t idx = 0U; idx < closest_dists_index; idx++)
+                    // {
+                    //     if((closest_first_indexes[idx] == i) || (closest_second_indexes[idx] == i))
+                    //     {
+                    //         first_found = true;
+                    //     }
+                    //     if((closest_first_indexes[idx] == j) || (closest_second_indexes[idx] == j))
+                    //     {
+                    //         second_found = true;
+                    //     }
+
+                    //     if(first_found && second_found)
+                    //     {
+                    //         break;
+                    //     }
+                    // }
+
+                    // if(first_found && second_found)
+                    // {
+                    //     continue;
+                    // }
+
+                    size_t index = get_prev_index(closest_dists, closest_dists_index, dist);
+                    if(closest_dists_index < GROUP_SIZE_V2)
                     {
-                        if(dist < closest_dists[index])
-                        {
-                            if(closest_dists_index < GROUP_SIZE_V2)
-                            {
-                                closest_dists_index++;
-                            }
-                            shuffle_array(&closest_dists[index], closest_dists_index - index);
-                            shuffle_array(&closest_first_indexes[index], closest_dists_index - index);
-                            shuffle_array(&closest_second_indexes[index], closest_dists_index - index);
-                            closest_dists[index] = dist;
-                            closest_first_indexes[index] = i;
-                            closest_second_indexes[index] = j;
-                            break;
-                        }
+                        closest_dists_index++;
                     }
+                    shuffle_array(&closest_dists[index], closest_dists_index - index);
+                    shuffle_array(&closest_first_indexes[index], closest_dists_index - index);
+                    shuffle_array(&closest_second_indexes[index], closest_dists_index - index);
+                    closest_dists[index] = dist;
+                    closest_first_indexes[index] = i;
+                    closest_second_indexes[index] = j;
                 }
             }
         }
@@ -561,6 +609,11 @@ static void update_state_2_v2(char c, long* circuits)
             size_t second_index = closest_second_indexes[iterations];
             long group_1 = index_groups[first_index];
             long group_2 = index_groups[second_index];
+            bool indexes_equal = (iterations > 0U) && ((closest_first_indexes[iterations - 1U] == first_index) && (closest_second_indexes[iterations - 1U] == second_index)) || ((closest_first_indexes[iterations - 1U] == second_index) && (closest_second_indexes[iterations - 1U] == first_index));
+            if((indexes_equal) || ((group_1 != -1) && (group_1 == group_2)))
+            {
+                continue;
+            }
 
             if(group_1 == group_2)
             {
@@ -578,12 +631,22 @@ static void update_state_2_v2(char c, long* circuits)
                 {
                     index_groups[first_index] = group_2;
                     index_groups_sizes[group_2]++;
+                    if(index_groups_sizes[group_2] >= 1000)
+                    {
+                        (*circuits) = grid[first_index][0] * grid[second_index][0];
+                        return;
+                    }
                     group_2 = -1;
                 }
                 else if(group_2 == -1)
                 {
                     index_groups[second_index] = group_1;
                     index_groups_sizes[group_1]++;
+                    if(index_groups_sizes[group_1] >= 1000)
+                    {
+                        (*circuits) = grid[first_index][0] * grid[second_index][0];
+                        return;
+                    }
                     group_1 = -1;
                 }
                 else
@@ -598,6 +661,11 @@ static void update_state_2_v2(char c, long* circuits)
 
                     index_groups[second_index] = first_group;
                     index_groups_sizes[first_group] += index_groups_sizes[second_group];
+                    if(index_groups_sizes[first_group] >= 1000)
+                    {
+                        (*circuits) = grid[first_index][0] * grid[second_index][0];
+                        return;
+                    }
                     index_groups_sizes[second_group] = 0U;
                     group_2 = first_group;
                     
@@ -610,37 +678,6 @@ static void update_state_2_v2(char c, long* circuits)
                     }
                 }
             }
-
-            long max_size = 0;
-            for(size_t i = 0U; i < group_index; i++)
-            {
-                if(index_groups_sizes[i] > max_size)
-                {
-                    max_size = index_groups_sizes[i];
-                }
-                if(index_groups_sizes[i] == 1000)
-                {
-                    (*circuits) = grid[first_index][0] * grid[second_index][0];
-                    return;
-                }
-            }
-        }
-
-        (*circuits) = 1;
-        for(size_t i = 0U; i < 3U; i++)
-        {
-            size_t largest_group = 0U;
-            size_t largest_group_index = 0U;
-            for(size_t i = 0U; i < group_index; i++)
-            {
-                if(index_groups_sizes[i] > largest_group)
-                {
-                    largest_group = index_groups_sizes[i];
-                    largest_group_index = i;
-                }
-            }
-            (*circuits) *= largest_group;
-            index_groups_sizes[largest_group_index] = 0U;
         }
     }
     else if(c == '\n')
